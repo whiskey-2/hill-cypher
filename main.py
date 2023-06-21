@@ -32,14 +32,9 @@ def make_couples(sentence, alphabet):
     couple = []
     couple_matrices = []
     while i < len(sentence):
-        #Accounts for spaces by replacing them with the letter v
-        #Can be replaced with strip() function, but will decide after feedback
-        if sentence[i] == ' ':
-            couple.append(alphabet.index('v'))
-        else:
-            couple.append(alphabet.index(sentence[i]))
-
+        couple.append(alphabet.index(sentence[i]))
         i += 1
+
         if i%2 == 0:
             couple_matrices.append(couple)
             couple = []
@@ -163,7 +158,7 @@ def main():
             print(f"The cipher used to encrypt it is: {cypher}. Share it only with the recipient of the message!")
         if user == '2':
             known_cyph = get_cypher_user()
-            message = input("Sentence to decrypt: ")
+            message = input("Sentence to decrypt: ").lower()
             couple_dec = make_couples(message.lower(), alphabet)
             inv_cyph = inverse_mat(known_cyph)
             dec = decrypt(inv_cyph, couple_dec, alphabet)
