@@ -1,10 +1,23 @@
-
-alphabet = ['z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', ' ', '']
+import random
 
 #test values
-cypher = [1,2,3,4]
-couples = [[4, 1], [14, 9], [5, 12], [26, 19], [21, 3], [11, 19]]
 
+def generate_cypher():
+    while True:
+        cypher = []
+        for i in range(4):
+            cypher.append(random.randint(0, 27))
+        
+        det_mat = cypher[0]*cypher[3] - cypher[1]*cypher[2]
+        det_mod2 = det_mat%2
+        det_mod13 = det_mat%13
+
+        if det_mod2 and det_mod13 != 0:
+            break
+        elif det_mod2 or det_mod13 == 0:
+            pass
+    
+    return cypher
 
 def mult_mat(mat1, mat2):
     result = [0,0]
@@ -24,9 +37,12 @@ def make_couples(sentence, alphabet):
         if i%2 == 0:
             couple_matrices.append(couple)
             couple = []
+
+        #Will make any uneven words repeat the last letter to make even
         elif i == len(sentence) and i%2 != 0:
-            couple.append(alphabet.index(''))
+            couple.append(alphabet.index(sentence[i-1]))
             couple_matrices.append(couple)
+
     return couple_matrices
 
 def make_encryption():
@@ -49,17 +65,16 @@ def encrypt(cypher, couples, alphabet):
     letters = []
     i = 0
     j = 0
-    k = 0
     
     while i < len(couples):
         result = mult_mat(cypher, couples[i])
 
-        final.append([result[0]%27, result[1]%27])
+        final.append([result[0]%26, result[1]%26])
 
         ''' This is a failed attempt at taking the "modulus"...There's a function for that already...
 
         if result[0] > 26 and result[1] <= 26:
-            final.append([result[0] - 27, result[1]])
+            final.append([result[0] - 26, result[1]])
         elif result[1] > 26 and result[0] <=26:
             final.append([result[0], result[1] - 26])
         elif result[0] > 26 and result[1] > 26:
@@ -89,11 +104,73 @@ def merge_letters(letter_couples):
     merged = ''.join(merging)
     print(merged)
 
-sent = input("Sentence: ")
-couple = make_couples(sent.lower(), alphabet)
-print(couple)
-enc = encrypt(cypher, couple, alphabet)
-print(enc)
-merge_letters(enc[1])
+def inverse_mat(matrix):
+    determinant = matrix[0]*matrix[3] - matrix[1]*matrix[2]
+    det_mod = pow(determinant, -1, 26)
+    print(det_mod)
+    inverse_matrix = [(matrix[3]*det_mod)%26, (-matrix[1]*det_mod)%26, (-matrix[2]*det_mod)%26, (matrix[0]*det_mod)%26]
+
+    return inverse_matrix
+
+def decrypt(cypher, enc_couples, alphabet):
+    decrypted = []
+    letters = []
+    i = 0
+    j = 0
+
+    while i < len(enc_couples):
+        result = mult_mat(cypher, enc_couples[i])
+        print(result)
+
+        decrypted.append([result[0]%26, result[1]%26])
+        i += 1
+
+    while j < len(decrypted):
+        temp1 = decrypted[j][0]
+        temp2 = decrypted[j][1]
+        letter1 = alphabet[temp1]
+        letter2 = alphabet[temp2]
+
+        letters.append([letter1,letter2])
+        j += 1
+    
+    return [decrypted, letters]
+
+def main():
+    alphabet = ['z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y']
+    cypher = generate_cypher()
+    sentence = input("Sentence: ") 
+    couple = make_couples(sentence.lower(), alphabet)
+
+    while True:
+        print("""Welcome to the all-in-one Hill Cypher tool. 
+        While this encryption method may be old, it still makes the majority of 1st year Engineering students cry, so it must be decent.
+        This program has several options, which you can select using the numbers corresponding to the function:
+        1. Encrypt a message
+        2. Decrypt a message (with a known cipher)
+        3. Crack a cipher and decrypt the message
+        
+        You may also quit by selecting '0'""")
+
+        user = input("\nSelect which function you would like to use: ")
+
+        if user == 1:
+            enc = encrypt(cypher, couple, alphabet)
+            mess_enc = merge_letters(enc[1])
+            print(f"Your encrypted message is: {mess_enc}")
+            print(f"The cipher used to encrypt it is: {cypher}. Share it only with the recipient of the message!")
+        if user == 2:
+            known_cyph = input("What is the cypher used to encrypt the message? ")
+            mess = input("What is the encrypted message? ")
+            inv_cyph = inverse_mat(known_cyph)
+            dec = decrypt(inv_cyph, mess, alphabet)
+            mess_dec = merge_letters(dec[1])
+            print(f"Here is the decrypted message: {mess_dec}")
+        if user == 3:
+            pass
+        if user == 0:
+            print("Thanks for using Hill Cypher, see you next time")
+            break
+
 
 
