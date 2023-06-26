@@ -131,6 +131,8 @@ def get_cypher_user():
 
     return joined
 
+def crack_cypher(encrypted, dec_segment, alphabet):
+    pass
 
 def main():
     alphabet = ['z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y']
